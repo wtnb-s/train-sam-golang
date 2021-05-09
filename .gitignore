@@ -1,0 +1,4 @@
+.aws-sam
+samconfig.toml
+hello-world/go.sum
+score-register/go.sum

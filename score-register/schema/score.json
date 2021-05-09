@@ -1,0 +1,13 @@
+
+{
+    "TableName": "Score",
+    "AttributeDefinitions": [
+        { "AttributeName": "PersonID", "AttributeType": "S" },
+        { "AttributeName": "TestID", "AttributeType": "S"}
+    ],
+    "KeySchema": [
+        { "AttributeName": "PersonID", "KeyType": "HASH" },
+        { "AttributeName": "TestID", "KeyType": "RANGE" }
+    ],
+    "ProvisionedThroughput": { "ReadCapacityUnits": 2, "WriteCapacityUnits": 2 }
+}

@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam-app-go
+
+  Sample SAM Template for sam-app-go
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  ScoreRegisterFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      PackageType: Image
+
+      FunctionName: 'score-register'
+      Policies: AmazonDynamoDBFullAccess
+      Events:
+        CatchAll:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /score
+            Method: POST
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          PARAM1: VALUE
+          DYNAMODB_ENDPOINT: ''
+    Metadata:
+      DockerTag: go1.x-v1
+      DockerContext: score-register/
+      Dockerfile: Dockerfile
+
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      PackageType: Image
+      FunctionName: 'hello-world'
+      Events:
+        CatchAll:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /hello/{personID}
+            Method: GET
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          PARAM1: VALUE
+    Metadata:
+      DockerTag: go1.x-v1
+      DockerContext: hello-world/
+      Dockerfile: Dockerfile
+
+  DynamoDBTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: Score
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      ProvisionedThroughput:
+        WriteCapacityUnits: 2
+        ReadCapacityUnits: 2
+      AttributeDefinitions:
+        - AttributeName: PersonID
+          AttributeType: S
+        - AttributeName: TestID
+          AttributeType: S
+      KeySchema:
+        - KeyType: HASH
+          AttributeName: PersonID
+        - KeyType: RANGE
+          AttributeName: TestID
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  ScoreRegisterAPI:
+    Description: 'API Gateway endpoint URL for Prod environment for First Function'
+    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/score/'
+  ScoreRegisterFunction:
+    Description: 'First Lambda Function ARN'
+    Value: !GetAtt ScoreRegisterFunction.Arn
+  ScoreRegisterFunctionIamRole:
+    Description: 'Implicit IAM Role created for Score Register function'
+    Value: !GetAtt HelloWorldFunctionRole.Arn
+
+  HelloWorldAPI:
+    Description: 'API Gateway endpoint URL for Prod environment for First Function'
+    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/'
+  HelloWorldFunction:
+    Description: 'First Lambda Function ARN'
+    Value: !GetAtt HelloWorldFunction.Arn
+  HelloWorldFunctionIamRole:
+    Description: 'Implicit IAM Role created for Hello World function'
+    Value: !GetAtt HelloWorldFunctionRole.Arn
