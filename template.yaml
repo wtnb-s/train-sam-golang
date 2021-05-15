@@ -29,8 +29,9 @@ Resources:
           DYNAMODB_ENDPOINT: ''
     Metadata:
       DockerTag: go1.x-v1
-      DockerContext: registScore/
+      DockerContext: ./
       Dockerfile: Dockerfile
+      DockerBuildArgs: { BUILD_TARGET: registScore }
 
   getScoreFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -50,8 +51,9 @@ Resources:
           PARAM1: VALUE
     Metadata:
       DockerTag: go1.x-v1
-      DockerContext: getScore/
+      DockerContext: ./
       Dockerfile: Dockerfile
+      DockerBuildArgs: { BUILD_TARGET: getScore }
 
   DynamoDBTable:
     Type: 'AWS::DynamoDB::Table'
