@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -42,6 +43,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	// item を dynamodb attributeに変換
 	av, err := dynamodbattribute.MarshalMap(person)
 	if err != nil {
+		fmt.Println(err)
 		return events.APIGatewayProxyResponse{}, err
 	}
 
@@ -58,6 +60,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		Item:      av,
 	})
 	if err != nil {
+		fmt.Println(err)
 		return events.APIGatewayProxyResponse{}, err
 	}
 
